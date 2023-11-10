@@ -1,37 +1,72 @@
 <template>
   <div class="shapshot">
     <div class="map-instance">
+      <div class="add">
+        <el-button
+          @click="addSnapShot"
+          type="primary"
+          style="width: 100%"
+          :icon="Plus"
+        ></el-button>
+      </div>
       <div
         @click="() => handleChangeActive(item)"
-        v-for="item in nums"
-        :class="['map-snapshot', activeMap === item ? 'active' : '']"
-      ></div>
+        v-for="item in snapshotItems"
+        :class="['map-snapshot', activeMap === item.id ? 'active' : '']"
+      >
+        {{ item.id }}
+        <div class="opts" @click.stop="() => deleteSnapShot(item)">
+          <el-icon><Close /></el-icon>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { Plus } from "@element-plus/icons-vue";
 const router = useRouter();
 // const emit = defineEmits(["snapshot"]);
-const nums = 5;
-const activeMap = ref(1);
+const snapshotItems = ref<
+  {
+    id: string;
+    name: string;
+  }[]
+>([]);
+const activeMap = ref("");
 
-onMounted(() => {
-  getMapSnapShot();
-});
-
-const getMapSnapShot = () => {
+const getMapSnapShot = (id) => {
   router.push({
     name: "edit",
     query: {
-      id: getHashCode("snap-shot" + activeMap.value, true),
+      id,
     },
   });
 };
-const handleChangeActive = (id) => {
-  activeMap.value = id;
-  getMapSnapShot();
+const handleChangeActive = (item) => {
+  activeMap.value = item.id;
 };
+
+const deleteSnapShot = (item) => {
+  snapshotItems.value = snapshotItems.value.filter(
+    (snap) => snap.id !== item.id
+  );
+  if (item.id === activeMap.value) {
+    activeMap.value = snapshotItems.value[0].id;
+  }
+};
+
+const addSnapShot = () => {
+  const shapshot = {
+    id: getHashCode("snap-shot" + new Date().getTime(), true),
+    name: "333",
+  };
+  snapshotItems.value.push(shapshot);
+  if (snapshotItems.value.length === 1) {
+    activeMap.value = shapshot.id;
+  }
+};
+
 const getHashCode = (str, caseSensitive) => {
   if (!caseSensitive) {
     str = str.toLowerCase();
@@ -44,9 +79,24 @@ const getHashCode = (str, caseSensitive) => {
     ch = str.charCodeAt(i);
     hash ^= (hash << 5) + ch + (hash >> 2);
   }
-
-  return hash & 0x7fffffff;
+  const strHash = String(hash & 0x7fffffff);
+  let hashChar = "";
+  for (let i = 0; i < strHash.length; i++) {
+    hashChar += strHash.charCodeAt(i).toString(16);
+  }
+  return hashChar;
 };
+
+watch(
+  () => activeMap,
+  (id) => {
+    getMapSnapShot(id.value);
+  },
+  {
+    deep: true,
+    immediate: true,
+  }
+);
 // console.log(activeMap);
 </script>
 
@@ -64,12 +114,28 @@ const getHashCode = (str, caseSensitive) => {
     flex-direction: column;
     height: 100%;
     overflow: auto;
+    row-gap: 8px;
+
+    .add {
+      width: 100%;
+    }
     .map-snapshot {
       background-color: aqua;
       width: 160px;
       height: 100px;
-      margin-bottom: 10px;
+      // margin-bottom: 10px;
       border-radius: var(--el-border-radius-base);
+      position: relative;
+      .opts {
+        display: none;
+        position: absolute;
+        top: 0;
+        right: 0;
+        cursor: pointer;
+      }
+    }
+    .map-snapshot:hover .opts {
+      display: block;
     }
     .active {
       border: 1px solid var(--el-color-primary);
