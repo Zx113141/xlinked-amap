@@ -7,10 +7,16 @@
 <script setup lang="ts">
 import AMapLoader from "@amap/amap-jsapi-loader";
 import { ElLoading } from "element-plus";
+
 import { initPluginService, initPluginEditor } from "@/service/pluginService";
-const snap = inject("snap", "");
+// const snap = inject("snap", "");
+const route = useRoute();
 
 onMounted(async () => {
+  // await initMap();
+});
+
+const initAMap = async () => {
   const loadingInstance = ElLoading.service({
     target: "#map",
   });
@@ -27,6 +33,11 @@ onMounted(async () => {
       "AMap.CircleEditor",
     ],
   });
+  initMap();
+  // initPluginEditor(window.map);
+  loadingInstance.close();
+};
+const initMap = () => {
   window.map = new window.AMap.Map("map", {
     center: [106.648225, 26.612017],
     zoom: 14,
@@ -36,19 +47,26 @@ onMounted(async () => {
   initPluginService(window.map, (mouseTool) => {
     window.mouseTool = mouseTool;
   });
-  // initPluginEditor(window.map);
-  loadingInstance.close();
-});
+};
 
-const getSnapshotBySnapId = (newSnap) => {
-  console.log(newSnap);
+const destroy = () => {
+  window.map && window.map.destroy();
+};
+
+const getSnapshotId = (id) => {
+  if (id) {
+    initAMap();
+  } else {
+    destroy();
+  }
 };
 
 watch(
-  () => snap,
-  (newSnap) => {
-    getSnapshotBySnapId(newSnap);
-  }
+  () => route.query.id,
+  (id) => {
+    getSnapshotId(id);
+  },
+  { deep: true }
 );
 </script>
 

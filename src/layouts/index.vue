@@ -16,7 +16,7 @@
     <el-container>
       <editor>
         <template #snapshot>
-          <snapshot @snapshot="(shotId) => (snap = shotId.value)"> </snapshot>
+          <snapshot> </snapshot>
         </template>
         <template #toolbar>
           <toolbar> </toolbar>
@@ -33,9 +33,9 @@ import { tabs_tool } from "@/config/tabs";
 import editor from "@/components/editor.vue";
 
 const activeName = ref("geo");
-const snap = ref("");
+// const snap = ref("");
 
-provide("snap", snap);
+// provide("snap", snap);
 
 const tabs_component = {};
 </script>
