@@ -137,6 +137,9 @@ watch(
     .map-snapshot:hover .opts {
       display: block;
     }
+    .map-snapshot:hover {
+      border: 1px solid var(--el-color-primary);
+    }
     .active {
       border: 1px solid var(--el-color-primary);
     }

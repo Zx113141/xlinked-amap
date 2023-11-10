@@ -7,7 +7,7 @@
           :label="tab.label"
           :name="tab.value"
         >
-          {{ tab.label }}
+          <!-- {{ tab.label }} -->
           <component :is="tabs_component[tab.value]" props="1"></component>
         </el-tab-pane>
       </el-tabs>
@@ -37,7 +37,9 @@ const activeName = ref("geo");
 
 // provide("snap", snap);
 
-const tabs_component = {};
+const tabs_component = {
+  geo: defineAsyncComponent(() => import("../components/geo.vue")),
+};
 </script>
 
 <style lang="scss" scoped>

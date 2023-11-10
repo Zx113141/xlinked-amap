@@ -20,3 +20,11 @@ export const initPluginEditor = (map,) => {
         }
     );
 }
+
+export const initGeoJson = () => {
+    window.AMap.plugin(['AMap.GeoJSON',]
+        , function (e) {
+            //异步加载插件
+        }
+    );
+}

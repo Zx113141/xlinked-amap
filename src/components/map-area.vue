@@ -8,7 +8,7 @@
 import AMapLoader from "@amap/amap-jsapi-loader";
 import { ElLoading } from "element-plus";
 
-import { initPluginService, initPluginEditor } from "@/service/pluginService";
+import { initPluginService, initGeoJson } from "@/service/pluginService";
 // const snap = inject("snap", "");
 const route = useRoute();
 
@@ -47,6 +47,7 @@ const initMap = () => {
   initPluginService(window.map, (mouseTool) => {
     window.mouseTool = mouseTool;
   });
+  initGeoJson();
 };
 
 const destroy = () => {
