@@ -51,7 +51,7 @@ const initMap = () => {
 };
 
 const destroy = () => {
-  window.map && window.map.destroy();
+  window.map.destroy && window.map.destroy();
 };
 
 const getSnapshotId = (id) => {
@@ -65,6 +65,7 @@ const getSnapshotId = (id) => {
 watch(
   () => route.query.id,
   (id) => {
+    console.log(id);
     getSnapshotId(id);
   },
   { deep: true }
