@@ -58,8 +58,12 @@
 <script lang="ts" setup>
 import { toolbar } from "@/config/toolbar";
 import options from "./toolbar/options.vue";
+import { useMapDataSource, type SourceId } from "@/store/data-source";
+import { dayjs } from "element-plus";
+
 const PARENT_PROVIDE = "parentProvide";
 
+const store = useMapDataSource();
 const parent = inject(PARENT_PROVIDE);
 const expand = ref(false);
 const isFull = ref(false);
@@ -96,6 +100,7 @@ const handleTool = (type) => {
       ...option.value,
       extData: {
         id: new Date().getTime(),
+        name: new Date().getTime(),
       },
     });
   }
@@ -112,24 +117,69 @@ const clearTool = () => {
   editor && editor.close();
   destroyListener();
 };
+
+const draw = (e) => {
+  const struct = e.obj;
+
+  emitStruct(struct);
+
+  struct.on("rightclick", edit);
+  struct.on("click", choose);
+};
+// 保存映射
+const emitStruct = (struct) => {
+  const className: string = struct.className;
+  const getType = className.split(".")[1];
+  let arr: any = [];
+  if (structMap.has(getType)) {
+    arr = structMap.get(getType);
+  }
+  const opts = struct.getOptions();
+
+  const geoJson = {
+    type: "Feature",
+    geometry: {
+      type: getType,
+      coordinates: opts.path,
+    },
+    properties: {
+      ...opts.extData,
+    },
+  };
+  const other = {
+    name: "新增polygo",
+    desc: "按图绘制",
+    id: opts.extData.id,
+
+    creator: "xx",
+    createTime: dayjs().format("YYYY-MM-DD"),
+    updateTime: "-",
+  };
+  arr.push({
+    other,
+    geoJson,
+  });
+
+  structMap.set(getType, arr);
+  store.updateGeoJsonByToolbar(structMap);
+  // console.log(struct);
+};
+
+// choose struct
+const choose = (e) => {
+  const { target } = e;
+  // console.log(target.getOptions());
+  target.setOptions({
+    strokeColor: "red",
+  });
+};
+
 const edit = (ev) => {
   const Construct = window.AMap[activeTool.value.editor];
   if (Construct) {
     editor = new Construct(window.map, ev.target);
     editor.open();
   }
-};
-const draw = (e) => {
-  const struct = e.obj;
-  console.log(struct);
-  emitStruct(struct);
-
-  struct.on("rightclick", edit);
-};
-
-const destroyListener = () => {
-  window.mouseTool.close();
-  window.mouseTool.off("draw", draw);
 };
 
 const fullScreen = () => {
@@ -141,15 +191,9 @@ const fullScreen = () => {
   }
   isFull.value = !isFull.value;
 };
-
-const emitStruct = (struct) => {
-  let arr: any = [];
-  if (structMap.has(struct.className)) {
-    arr = structMap.get(struct.className);
-  }
-  arr.push(struct);
-  structMap.set(struct.className, arr);
-  console.log(struct);
+const destroyListener = () => {
+  window.mouseTool.close();
+  window.mouseTool.off("draw", draw);
 };
 </script>
 

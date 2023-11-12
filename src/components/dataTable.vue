@@ -14,6 +14,7 @@
     >
       <el-table-column type="selection" />
       <el-table-column type="index" label="序号" />
+      <el-table-column property="name" label="名称" />
       <el-table-column property="desc" label="描述" />
       <el-table-column property="creator" label="创建人" />
       <el-table-column property="createTime" label="创建时间" />
@@ -54,14 +55,6 @@
 <script lang="ts" setup>
 import { useMapDataSource, type SourceId } from "@/store/data-source";
 import shieldFeature from "./shieldFeature/shieldFeature.vue";
-
-const props = defineProps<{
-  mapId: string;
-  type: {
-    label: string;
-    value: SourceId;
-  };
-}>();
 interface PolygonData {
   id: number;
   name: string;
@@ -70,20 +63,21 @@ interface PolygonData {
   updateTime: string;
   desc: string;
 }
+const props = defineProps<{
+  mapId: string;
+  type: {
+    label: string;
+    value: SourceId;
+  };
+  tableData: PolygonData[];
+}>();
+
 const store = useMapDataSource();
 const multipleSelection = ref<PolygonData[]>([]);
 const drawer = ref(false);
 const id = ref("");
-const tableData = ref([
-  {
-    id: "1",
-    name: "实例数据",
-    creator: "xx",
-    createTime: "2023-11-10",
-    updateTime: "2023-11-10",
-    desc: "示例数据主要用于测试",
-  },
-]);
+const tableData = ref(props.tableData);
+
 const handleSelectionChange = (val: PolygonData[]) => {
   multipleSelection.value = val;
 };

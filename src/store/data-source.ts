@@ -5,7 +5,8 @@ import { store } from './index';
 interface DataSource {
 
     source: Map<string, Source[]>
-
+    // TODO: for test function,delet till test finished
+    geoJson: any
 }
 
 export type SourceId = 'polygon' | 'polyline' | 'marker'
@@ -19,6 +20,7 @@ export const useDataSource = defineStore({
     id: 'data-source',
     state: (): DataSource => ({
         source: new Map(),
+        geoJson: null
     }),
     getters: {
 
@@ -34,6 +36,9 @@ export const useDataSource = defineStore({
                 this.source.set(mapId, [source])
             }
             console.log(this.source);
+        },
+        updateGeoJsonByToolbar(map: Map<string, any>) {
+            this.geoJson = map
         }
     },
 });

@@ -85,7 +85,7 @@
         </el-table-column>
       </el-table>
       <el-alert
-        title="当前配置字段值尽量保证唯一性，否则会以后添加的为准"
+        title="当前配置字段值尽量保证唯一性，否则会以最后添加的为准"
         type="warning"
         show-icon
       />

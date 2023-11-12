@@ -1,14 +1,14 @@
 export const geo_button = [
     {
         label: '平面数据',
-        value: 'polygon',
+        value: 'Polygon',
     },
     {
         label: '线数据',
-        value: 'polyline',
+        value: 'Polyline',
     },
     {
         label: '点数据',
-        value: 'marker',
+        value: 'Marker',
     }
 ]
