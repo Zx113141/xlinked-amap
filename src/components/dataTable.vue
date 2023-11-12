@@ -18,13 +18,16 @@
       <el-table-column property="creator" label="创建人" />
       <el-table-column property="createTime" label="创建时间" />
       <el-table-column property="updateTime" label="更新时间" />
-      <el-table-column property="oprate" label="操作" width="220">
+      <el-table-column property="oprate" label="操作" width="300">
         <template #default="scope">
           <el-button type="success" @click="() => update(scope.row)"
             >更新</el-button
           >
-          <el-button type="primary" @click="() => download(scope.row)"
+          <el-button type="info" @click="() => download(scope.row)"
             >下载</el-button
+          >
+          <el-button type="primary" @click="() => config(scope.row)"
+            >配置JSON字段</el-button
           >
           <el-button type="danger" @click="() => deleteData(scope.row)"
             >删除</el-button
@@ -33,12 +36,27 @@
       </el-table-column>
     </el-table>
     <el-button type="primary" @click="loadData">加载选中数据</el-button>
-    <el-dialog :visible="visible"> </el-dialog>
+    <el-drawer
+      @close="() => (drawer = false)"
+      v-model="drawer"
+      :with-header="false"
+      direction="btt"
+      close-on-click-modal
+      show-close
+      destroy-on-close
+      size="50%"
+    >
+      <shield-feature
+        :featureData="featureData"
+        :columns="columns"
+      ></shield-feature>
+    </el-drawer>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useMapDataSource, type SourceId } from "@/store/data-source";
+import shieldFeature from "./shieldFeature/shieldFeature.vue";
 
 const props = defineProps<{
   mapId: string;
@@ -57,7 +75,26 @@ interface PolygonData {
 }
 const store = useMapDataSource();
 const multipleSelection = ref<PolygonData[]>([]);
-const visible = ref(false);
+const drawer = ref(false);
+const featureData = ref();
+const columns = ref([
+  {
+    name: "健康度",
+    shield: "health",
+  },
+  {
+    name: "名称",
+    shield: "name",
+  },
+  {
+    name: "值",
+    shield: "value",
+  },
+  {
+    name: "zylsd",
+    shield: "zylsd",
+  },
+]);
 const tableData = ref([
   {
     id: 1,
@@ -82,6 +119,20 @@ const download = (row) => {
 
 const deleteData = (row) => {
   console.log(row);
+};
+
+const config = async (row) => {
+  featureData.value = await (
+    await fetch("../../config/default.geojson")
+  ).json();
+  drawer.value = true;
+
+  // const properties =  geoJson.features.map((feature) => {
+  //   return {
+
+  //   }
+  // })
+  // console.log(geoStr.value);
 };
 
 const loadData = async () => {
