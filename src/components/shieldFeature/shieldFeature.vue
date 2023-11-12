@@ -10,7 +10,7 @@
       :data="tableData"
       style="width: 100%"
       table-layout="fixed"
-      height="400"
+      height="320"
     >
       <el-table-column type="index" label="序号" />
       <el-table-column property="creator" label="创建人" />
@@ -48,7 +48,12 @@
         </template>
       </el-table-column>
     </el-table>
-
+    <el-button
+      type="primary"
+      style="margin-right: 15px"
+      @click="() => emit('upData', { tableData, columns })"
+      >保存</el-button
+    >
     <el-drawer
       @close="() => (drawer = false)"
       v-model="drawer"
@@ -68,7 +73,7 @@
       >
         <el-table-column property="name" label="字段名" />
         <el-table-column property="shield" label="字段值" />
-        <el-table-column property="oprate" label="操作">
+        <el-table-column property="oprate" label="操作" width="130">
           <template #default="scope">
             <el-button type="success" @click="() => update(scope.row)"
               >编辑</el-button
@@ -84,6 +89,7 @@
         type="warning"
         show-icon
       />
+      <el-divider content-position="left">新增字段</el-divider>
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-form-item label="字段名">
           <el-input v-model="form.name" placeholder="请输入字段描述" />
@@ -107,11 +113,39 @@
 
 <script lang="ts" setup>
 const props = defineProps<{
-  featureData: any;
-  columns: any;
+  id: string;
 }>();
+const emit = defineEmits(["upData"]);
+onMounted(async () => {
+  console.log(props.id);
+  //   https://geo.datav.aliyun.com/areas_v3/bound/520115.json
+  const res = await (await fetch("../../../config/default.geojson")).json();
+  tableData.value = res.features.map((fea) => {
+    return {
+      ...fea.properties,
+    };
+  });
+  columns.value = [
+    {
+      name: "健康度",
+      shield: "health",
+    },
+    {
+      name: "名称",
+      shield: "name",
+    },
+    {
+      name: "值",
+      shield: "value",
+    },
+    {
+      name: "zylsd",
+      shield: "zylsd",
+    },
+  ];
+});
 const tableData = ref([]);
-const columns = ref(props.columns);
+const columns = ref();
 const drawer = ref(false);
 const form = ref({});
 
@@ -128,22 +162,18 @@ const deleteShield = (row) => {
 };
 
 const update = (row) => {};
-watch(
-  () => props.featureData.features,
-  (feature) => {
-    if (feature) {
-      tableData.value = feature.map((fea) => {
-        return {
-          ...fea.properties,
-        };
-      });
-    }
-  },
-  {
-    immediate: true,
-    deep: true,
-  }
-);
+// watch(
+//   () => props.featureData?.features,
+//   (feature) => {
+//     if (feature) {
+//       tableData.value = ;
+//     }
+//   },
+//   {
+//     immediate: true,
+//     deep: true,
+//   }
+// );
 </script>
 
 <style lang="scss" scoped>

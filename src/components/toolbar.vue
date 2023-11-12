@@ -121,6 +121,7 @@ const edit = (ev) => {
 };
 const draw = (e) => {
   const struct = e.obj;
+  console.log(struct);
   emitStruct(struct);
 
   struct.on("rightclick", edit);

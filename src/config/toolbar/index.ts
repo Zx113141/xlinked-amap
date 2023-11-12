@@ -26,20 +26,20 @@ export const toolbar = [
         type: 'MouseTool',
         editor: 'PolylineEditor'
     },
-    {
-        icon: circle,
-        value: 'circle',
-        name: '圆形',
-        type: 'MouseTool',
-        editor: 'CircleEditor'
-    },
-    {
-        icon: rectangle,
-        value: 'rectangle',
-        name: '矩形',
-        type: 'MouseTool',
-        editor: 'RectangleEditor'
-    },
+    // {
+    //     icon: circle,
+    //     value: 'circle',
+    //     name: '圆形',
+    //     type: 'MouseTool',
+    //     editor: 'CircleEditor'
+    // },
+    // {
+    //     icon: rectangle,
+    //     value: 'rectangle',
+    //     name: '矩形',
+    //     type: 'MouseTool',
+    //     editor: 'RectangleEditor'
+    // },
     {
         icon: polygon,
         value: 'polygon',

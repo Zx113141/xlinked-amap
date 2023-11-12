@@ -46,10 +46,7 @@
       destroy-on-close
       size="50%"
     >
-      <shield-feature
-        :featureData="featureData"
-        :columns="columns"
-      ></shield-feature>
+      <shield-feature :id="id" @upData="upData"></shield-feature>
     </el-drawer>
   </div>
 </template>
@@ -76,28 +73,10 @@ interface PolygonData {
 const store = useMapDataSource();
 const multipleSelection = ref<PolygonData[]>([]);
 const drawer = ref(false);
-const featureData = ref();
-const columns = ref([
-  {
-    name: "健康度",
-    shield: "health",
-  },
-  {
-    name: "名称",
-    shield: "name",
-  },
-  {
-    name: "值",
-    shield: "value",
-  },
-  {
-    name: "zylsd",
-    shield: "zylsd",
-  },
-]);
+const id = ref("");
 const tableData = ref([
   {
-    id: 1,
+    id: "1",
     name: "实例数据",
     creator: "xx",
     createTime: "2023-11-10",
@@ -122,20 +101,15 @@ const deleteData = (row) => {
 };
 
 const config = async (row) => {
-  featureData.value = await (
-    await fetch("../../config/default.geojson")
-  ).json();
+  id.value = row.id;
   drawer.value = true;
-
-  // const properties =  geoJson.features.map((feature) => {
-  //   return {
-
-  //   }
-  // })
-  // console.log(geoStr.value);
+};
+const upData = (e) => {
+  console.log(e);
 };
 
 const loadData = async () => {
+  // console.log(featureData.value, columns.value);
   store.updateDataSourceByMapId(props.mapId, {
     id: props.type.value,
     dataIds: multipleSelection.value.map((select) => select.id),
