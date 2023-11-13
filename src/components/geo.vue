@@ -40,13 +40,13 @@ const tableData = ref([]);
 
 const handleBtnClick = (btn) => {
   type.value = btn;
-  const data = store.geoJson.get(btn.value) || [];
-  tableData.value = data.map((item) => {
-    return {
-      ...item.other,
-    };
-  });
-  console.log(data, store.geoJson);
+  // const data = store.geoJson.get(btn.value) || [];
+  // tableData.value = data.map((item) => {
+  //   return {
+  //     ...item.other,
+  //   };
+  // });
+  // console.log(data, store.geoJson);
   // console.log(store.geoJson);
   drawer.value = true;
 };

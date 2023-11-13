@@ -52,7 +52,7 @@ const deleteSnapShot = (item) => {
     (snap) => snap.id !== item.id
   );
   if (item.id === activeMap.value) {
-    activeMap.value = snapshotItems.value[0].id;
+    activeMap.value = snapshotItems?.value[0]?.id || "";
   }
 };
 
