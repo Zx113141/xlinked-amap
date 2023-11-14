@@ -28,9 +28,6 @@
 <script lang="ts" setup>
 import dataTable from "./dataTable.vue";
 import { geo_button } from "@/config/geo-button";
-import { useMapDataSource } from "@/store/data-source";
-
-const store = useMapDataSource();
 
 const drawer = ref(false);
 const mapId = ref("");
@@ -38,16 +35,15 @@ const type = ref();
 const route = useRoute();
 const tableData = ref([]);
 
-const handleBtnClick = (btn) => {
+const handleBtnClick = async (btn) => {
   type.value = btn;
-  // const data = store.geoJson.get(btn.value) || [];
-  // tableData.value = data.map((item) => {
-  //   return {
-  //     ...item.other,
-  //   };
-  // });
-  // console.log(data, store.geoJson);
-  // console.log(store.geoJson);
+  const data = await window.db.getDataByKey();
+  tableData.value = data.map((item) => {
+    delete item["geo"];
+    return {
+      ...item,
+    };
+  });
   drawer.value = true;
 };
 

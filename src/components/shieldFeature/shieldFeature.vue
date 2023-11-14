@@ -119,29 +119,33 @@ const emit = defineEmits(["upData"]);
 onMounted(async () => {
   console.log(props.id);
   //   https://geo.datav.aliyun.com/areas_v3/bound/520115.json
-  const res = await (await fetch("../../../config/default.geojson")).json();
-  tableData.value = res.features.map((fea) => {
+  const res = await window.db.getDataByKey(props.id);
+  // (await fetch("../../../config/default.geojson")).json();
+  tableData.value = res.map((fea) => {
     return {
-      ...fea.properties,
+      ...fea.geo.properties,
+      creator: fea.creator || "-",
+      updateTime: fea.updateTime || "-",
+      createTime: fea.updateTime || "-",
     };
   });
   columns.value = [
-    {
-      name: "健康度",
-      shield: "health",
-    },
-    {
-      name: "名称",
-      shield: "name",
-    },
-    {
-      name: "值",
-      shield: "value",
-    },
-    {
-      name: "zylsd",
-      shield: "zylsd",
-    },
+    // {
+    //   name: "健康度",
+    //   shield: "health",
+    // },
+    // {
+    //   name: "名称",
+    //   shield: "name",
+    // },
+    // {
+    //   name: "值",
+    //   shield: "value",
+    // },
+    // {
+    //   name: "zylsd",
+    //   shield: "zylsd",
+    // },
   ];
 });
 const tableData = ref([]);

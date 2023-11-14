@@ -107,7 +107,7 @@ export default class IndexDBCache {
         });
     }
     // 通过主键读取数据
-    getDataByKey(key) {
+    getDataByKey(key?: string) {
         return new Promise((resolve, reject) => {
             const transaction = this._db.transaction(this._cacheTableName);
             const objectStore = transaction.objectStore(this._cacheTableName);

@@ -5,7 +5,7 @@
         <div
           v-for="tool in toolbar"
           class="tool flex"
-          @click.stop="() => handleTool(tool)"
+          @click.stop="() => handleTool(tool, routeId)"
           :style="`background-color:${
             activeTool.value === tool.value ? '#409EFC' : ''
           }`"
@@ -71,12 +71,13 @@
 <script lang="ts" setup>
 import { toolbar } from "@/config/toolbar";
 import options from "./toolbar/options.vue";
-
+import { useUser } from "@/store/user";
 import { useToolSelect } from "@/service/optGeojson";
 
 const PARENT_PROVIDE = "parentProvide";
 
 const parent = inject(PARENT_PROVIDE);
+const routeId = inject("routeId");
 const expand = ref(false);
 const isFull = ref(false);
 const dialog = ref(false);
@@ -97,13 +98,9 @@ const option = ref({
   fillOpacity: 0.5,
   strokeStyle: "solid",
 });
-
-const route = useRoute();
-const [clearTool, handleTool] = useToolSelect(
-  activeTool,
-  route.query.id,
-  option
-);
+const user = useUser().getUserInfo;
+// console.log(useUser().getUserInfo);
+const [clearTool, handleTool] = useToolSelect(activeTool, option, user);
 
 const collapse = () => {
   expand.value = !expand.value;
@@ -118,10 +115,6 @@ const fullScreen = () => {
   }
   isFull.value = !isFull.value;
 };
-
-// onMounted(() => {
-
-// });
 </script>
 
 <style lang="scss" scoped>

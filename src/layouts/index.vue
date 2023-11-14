@@ -31,15 +31,27 @@ import snapshot from "../components/shapshot.vue";
 import toolbar from "../components/toolbar.vue";
 import { tabs_tool } from "@/config/tabs";
 import editor from "@/components/editor.vue";
-
+const route = useRoute();
+const routeId = ref("");
 const activeName = ref("geo");
-// const snap = ref("");
-
-// provide("snap", snap);
+const ROUTE_ID = "routeId";
+provide(ROUTE_ID, routeId);
 
 const tabs_component = {
   geo: defineAsyncComponent(() => import("../components/geo.vue")),
 };
+
+watch(
+  () => route.query.id,
+  (id) => {
+    if (id) {
+      routeId.value = id as string;
+    }
+  },
+  {
+    immediate: true,
+  }
+);
 </script>
 
 <style lang="scss" scoped>

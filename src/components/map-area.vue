@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import AMapLoader from "@amap/amap-jsapi-loader";
 import { ElLoading } from "element-plus";
-
+import { draw } from "@/service/coverService";
 import { initPluginService, initGeoJson } from "@/service/pluginService";
 // const snap = inject("snap", "");
 const route = useRoute();
@@ -16,7 +16,7 @@ onMounted(async () => {
   // await initMap();
 });
 
-const initAMap = async () => {
+const initAMap = async (id) => {
   const loadingInstance = ElLoading.service({
     target: "#map",
   });
@@ -31,13 +31,15 @@ const initAMap = async () => {
       "AMap.PolygonEditor",
       "AMap.PolylineEditor",
       "AMap.CircleEditor",
+      "AMap.GeoJSON",
     ],
   });
-  initMap();
+  await initMap(id);
+
   // initPluginEditor(window.map);
   loadingInstance.close();
 };
-const initMap = () => {
+const initMap = async (id) => {
   window.map = new window.AMap.Map("map", {
     center: [106.648225, 26.612017],
     zoom: 14,
@@ -48,6 +50,7 @@ const initMap = () => {
     window.mouseTool = mouseTool;
   });
   initGeoJson();
+  await draw(id);
 };
 
 const destroy = () => {
@@ -56,7 +59,7 @@ const destroy = () => {
 
 const getSnapshotId = (id) => {
   if (id) {
-    initAMap();
+    initAMap(id);
   } else {
     destroy();
   }
@@ -65,7 +68,6 @@ const getSnapshotId = (id) => {
 watch(
   () => route.query.id,
   (id) => {
-    console.log(id);
     getSnapshotId(id);
   },
   { deep: true }

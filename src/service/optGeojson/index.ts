@@ -1,42 +1,61 @@
 // import { clickDialog } from "../dialogService";
 import DescriptionInfo from "@/components/toolbar/desc.vue";
 import { ElMessageBox, ElMessage } from 'element-plus'
+import { dayjs } from "element-plus";
 // 保存映射
-export const emitStruct = async (id, struct, type, desc) => {
+export const emitStruct = async (mapId, struct, type, info) => {
+    const { desc, user, option } = info
     const className: string = struct.className;
     const getType = className.split(".")[1];
-    const arr = await window.db.getDataByKey(id) as any[]
+
     const opts = struct.getOptions();
-    let data_table
-    switch (type) {
-        case "INSERT":
-            arr.push(addStruct(getType, opts, desc))
-            data_table = {
-                type,
-                id,
 
-                geo: arr
-            }
-            await window.db.addData(data_table);
-            break;
-        case "PUT":
-            data_table = {
-                type,
-                id,
+    let ob = {}
+    try {
+        switch (type) {
+            case "INSERT":
+                ob = addStruct(getType, {
+                    opts,
+                    option
+                }, {
+                    type,
+                    id: opts.extData.id,
+                    ...desc,
+                    mapId,
+                    creator: user.name,
+                    createTime: dayjs().format('YYYY-MM-DD'),
 
-                geo: arr
-            }
-            await window.db.update(putStruct(getType, opts, desc))
-            break;
-        case "DELETE":
-            await window.db.remove(deleteStruct(id))
-            break;
-        default:
-            break;
+                })
+                await window.db.addData({
+                    ...ob
+                });
+                break;
+            case "PUT":
+
+                // await window.db.update(putStruct(getType, opts))
+                break;
+            case "DELETE":
+                await window.db.remove(deleteStruct(id))
+                break;
+            default:
+                break;
+        }
+        ElMessage({
+            type: 'success',
+            message: `添加成功`,
+        })
+    } catch (err) {
+        console.log(err);
+        ElMessage({
+            type: 'info',
+            message: '添加失败',
+        })
     }
 
+
 };
-export const assembleJson = (getType, opts, desc) => {
+export const assembleJson = (getType, mergeOpts, obj) => {
+    const { option, opts } = mergeOpts
     const geoJson = {
         type: "Feature",
         geometry: {
@@ -44,30 +63,38 @@ export const assembleJson = (getType, opts, desc) => {
             coordinates: opts.path,
         },
         properties: {
+            // ...opts,
+            option: {
+                ...option
+            },
             ...opts.extData,
-            ...desc
+
         },
     };
-    return geoJson
+    const data_table = {
+        ...obj,
+        geo: geoJson
+    }
+    return data_table
 }
 
 
-export const addStruct = (getType, opts, desc) => {
+export const addStruct = (getType, opts, obj) => {
 
-    return assembleJson(getType, opts, desc)
+    return assembleJson(getType, opts, obj)
 }
 
-export const putStruct = (getType, opts, desc) => {
-    return assembleJson(getType, opts, desc)
+export const putStruct = (getType, opts) => {
+    return assembleJson(getType, opts)
 }
 export const deleteStruct = (id) => {
     return id
 }
 
 
-export const useToolSelect = (activeTool, routeId, option) => {
+export const useToolSelect = (activeTool, option, user) => {
     let editor: any = null
-
+    let mapId = ref('')
     // clickDialog(null, (close) => {
     //     // close()
     // }, DescriptionInfo)
@@ -80,7 +107,7 @@ export const useToolSelect = (activeTool, routeId, option) => {
     };
     const removeEvent = () => {
         destroyEditor();
-        handleTool(activeTool.value)
+        handleTool(activeTool.value, mapId.value)
     }
     const draw = async (e) => {
         const struct = e.obj;
@@ -88,7 +115,8 @@ export const useToolSelect = (activeTool, routeId, option) => {
         // console.log(desc);
         struct.on("rightclick", removeEvent);
         struct.on("click", edit);
-        emitStruct(routeId, struct, "INSERT", desc).then();
+        console.log(user);
+        emitStruct(mapId.value, struct, "INSERT", { desc, user, option: option.value }).then();
     };
     const edit = (ev) => {
         activeTool.value = ev.target.getExtData().type;
@@ -113,10 +141,11 @@ export const useToolSelect = (activeTool, routeId, option) => {
         destroyListener();
     };
 
-    const handleTool = (type) => {
+    const handleTool = (type, routeId) => {
         if (activeTool.value) {
             window.mouseTool.close();
         }
+        mapId.value = routeId
         activeTool.value = type;
         if (type.type === "MouseTool") {
             window.mouseTool[type.value]({
@@ -153,17 +182,9 @@ const addInfor = () => {
             })
         })
             .then(({ value }) => {
-                ElMessage({
-                    type: 'success',
-                    message: `添加成功`,
-                })
                 resolve(desc.value)
             })
             .catch(() => {
-                ElMessage({
-                    type: 'info',
-                    message: '添加失败',
-                })
                 resolve(desc.value)
             })
     })

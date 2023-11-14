@@ -33,6 +33,13 @@ const snapshotItems = ref<
     name: string;
   }[]
 >([]);
+// [
+//   {
+//     name: "geojson",
+//     id: "32303037363238393639",
+//   },
+// ]
+// 32303037363238393639/
 const activeMap = ref("");
 
 const getMapSnapShot = (id) => {
