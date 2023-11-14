@@ -12,7 +12,7 @@ export default class IndexDBCache {
     constructor(
         params = {
             dbName: "GeoJson", // 数据库名
-            cacheTableName: "geojson", // 表名
+            cacheTableName: "GeoJson", // 表名
             keyPath: "id",  // 设置主键 （需要为添加对象内的key，否则新增和获取都会失败）
             indexs: [], // 设置索引
         }
@@ -64,16 +64,18 @@ export default class IndexDBCache {
      */
     addData(params) {
         return new Promise((resolve, reject) => {
-            const request = this._db.transaction(
-                this._cacheTableName,
+
+            const transaction = this._db.transaction(
+                [this._cacheTableName],
                 "readwrite"
-            ).objectStore(this._cacheTableName).add(params)
-            // const store = ;
-            // const response = store;
-            request.onsuccess = (event) => {
+            );
+            const store = transaction.objectStore(this._cacheTableName);
+            console.log(params);
+            const response = store.add(params);
+            response.onsuccess = (event) => {
                 resolve(event);
             };
-            request.onerror = (event) => {
+            response.onerror = (event) => {
                 reject(event);
             };
         });

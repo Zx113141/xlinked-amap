@@ -52,13 +52,26 @@
         @close="() => (dialog = false)"
       ></options>
     </el-dialog>
+    <!-- <click-dialog
+      v-model:visible="descVisible"
+      :title="`${activeTool.name}的详情`"
+      :position="{
+        x: position.x,
+        y: position.y,
+      }"
+    >
+      <description-info
+        v-model:desc="description"
+        @close="() => (dialog = false)"
+      ></description-info>
+    </click-dialog> -->
   </div>
 </template>
 
 <script lang="ts" setup>
 import { toolbar } from "@/config/toolbar";
 import options from "./toolbar/options.vue";
-import { emitStruct } from "@/service/optGeojson";
+
 import { useToolSelect } from "@/service/optGeojson";
 
 const PARENT_PROVIDE = "parentProvide";
@@ -67,6 +80,14 @@ const parent = inject(PARENT_PROVIDE);
 const expand = ref(false);
 const isFull = ref(false);
 const dialog = ref(false);
+
+const activeTool = ref({
+  name: "",
+  value: "",
+  type: "",
+  editor: "",
+});
+
 // const structMap = new Map();
 const option = ref({
   strokeColor: "#FE34AA",
@@ -75,12 +96,6 @@ const option = ref({
   fillColor: "#3477FE",
   fillOpacity: 0.5,
   strokeStyle: "solid",
-});
-const activeTool = ref({
-  name: "",
-  value: "",
-  type: "",
-  editor: "",
 });
 
 const route = useRoute();
@@ -103,6 +118,10 @@ const fullScreen = () => {
   }
   isFull.value = !isFull.value;
 };
+
+// onMounted(() => {
+
+// });
 </script>
 
 <style lang="scss" scoped>

@@ -1,18 +1,32 @@
-
-
+// import { clickDialog } from "../dialogService";
+import DescriptionInfo from "@/components/toolbar/desc.vue";
+import { ElMessageBox, ElMessage } from 'element-plus'
 // 保存映射
-export const emitStruct = async (id, struct, type) => {
+export const emitStruct = async (id, struct, type, desc) => {
     const className: string = struct.className;
     const getType = className.split(".")[1];
     const arr = await window.db.getDataByKey(id) as any[]
     const opts = struct.getOptions();
+    let data_table
     switch (type) {
         case "INSERT":
-            arr.push(addStruct(id, type, getType, opts))
-            await window.db.addData(arr);
+            arr.push(addStruct(getType, opts, desc))
+            data_table = {
+                type,
+                id,
+
+                geo: arr
+            }
+            await window.db.addData(data_table);
             break;
         case "PUT":
-            await window.db.update(putStruct(id, type, getType, opts))
+            data_table = {
+                type,
+                id,
+
+                geo: arr
+            }
+            await window.db.update(putStruct(getType, opts, desc))
             break;
         case "DELETE":
             await window.db.remove(deleteStruct(id))
@@ -22,7 +36,7 @@ export const emitStruct = async (id, struct, type) => {
     }
 
 };
-export const assembleJson = (id, type, getType, opts) => {
+export const assembleJson = (getType, opts, desc) => {
     const geoJson = {
         type: "Feature",
         geometry: {
@@ -31,24 +45,20 @@ export const assembleJson = (id, type, getType, opts) => {
         },
         properties: {
             ...opts.extData,
+            ...desc
         },
     };
-    const data_table = {
-        type,
-        id,
-        geo: geoJson
-    }
-    return data_table
+    return geoJson
 }
 
 
-export const addStruct = (id, type, getType, opts) => {
+export const addStruct = (getType, opts, desc) => {
 
-    return assembleJson(id, type, getType, opts)
+    return assembleJson(getType, opts, desc)
 }
 
-export const putStruct = (id, type, getType, opts) => {
-    return assembleJson(id, type, getType, opts)
+export const putStruct = (getType, opts, desc) => {
+    return assembleJson(getType, opts, desc)
 }
 export const deleteStruct = (id) => {
     return id
@@ -57,6 +67,10 @@ export const deleteStruct = (id) => {
 
 export const useToolSelect = (activeTool, routeId, option) => {
     let editor: any = null
+
+    // clickDialog(null, (close) => {
+    //     // close()
+    // }, DescriptionInfo)
     const destroyEditor = () => {
         editor && editor.close();
     };
@@ -68,11 +82,13 @@ export const useToolSelect = (activeTool, routeId, option) => {
         destroyEditor();
         handleTool(activeTool.value)
     }
-    const draw = (e) => {
+    const draw = async (e) => {
         const struct = e.obj;
+        const desc = await addInfor()
+        // console.log(desc);
         struct.on("rightclick", removeEvent);
         struct.on("click", edit);
-        emitStruct(routeId, struct, "INSERT").then();
+        emitStruct(routeId, struct, "INSERT", desc).then();
     };
     const edit = (ev) => {
         activeTool.value = ev.target.getExtData().type;
@@ -84,6 +100,7 @@ export const useToolSelect = (activeTool, routeId, option) => {
             editor.open();
         }
     };
+
 
     const clearTool = () => {
         activeTool.value = {
@@ -106,12 +123,49 @@ export const useToolSelect = (activeTool, routeId, option) => {
                 ...option.value,
                 extData: {
                     id: new Date().getTime() + "",
-                    name: new Date().getTime() + "",
-                    type
+                    type,
                 },
             });
         }
+
         window.mouseTool.on("draw", draw);
     };
-    return [clearTool, handleTool]
+    return [clearTool, handleTool,]
+}
+
+const addInfor = () => {
+    const desc = ref({
+        name: '',
+        desc: ''
+    })
+    return new Promise((resolve, reject) => {
+        ElMessageBox({
+            title: '基础信息配置',
+            confirmButtonText: 'OK',
+            cancelButtonText: 'Cancel',
+            message: () => h(DescriptionInfo, {
+                desc: desc.value,
+                'onUpdate:desc': (val) => {
+                    desc.value = {
+                        ...val
+                    }
+                },
+            })
+        })
+            .then(({ value }) => {
+                ElMessage({
+                    type: 'success',
+                    message: `添加成功`,
+                })
+                resolve(desc.value)
+            })
+            .catch(() => {
+                ElMessage({
+                    type: 'info',
+                    message: '添加失败',
+                })
+                resolve(desc.value)
+            })
+    })
+
 }
