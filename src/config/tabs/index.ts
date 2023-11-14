@@ -14,5 +14,6 @@ export const tabs_tool = [
     {
         label: '数据分析',
         value: 'enhance'
-    }
+    },
+
 ]

@@ -5,7 +5,7 @@
         <div
           v-for="tool in toolbar"
           class="tool flex"
-          @click.stop="() => handleTool(tool)"
+          @click.stop="() => handleTool(tool, routeId)"
           :style="`background-color:${
             activeTool.value === tool.value ? '#409EFC' : ''
           }`"
@@ -21,83 +21,99 @@
           <ArrowRight v-else="expand" />
         </el-icon>
       </div>
+      <div class="tool flex" @click.stop="fullScreen">
+        <el-icon>
+          <el-icon><FullScreen /></el-icon>
+        </el-icon>
+      </div>
     </div>
 
     <div class="tool-info flex" v-if="activeTool.value">
-      <div class="info">当前正在绘制{{ activeTool.name }}</div>
-      <div class="exit-draw" @click.stop="clearTool">退出绘制</div>
+      <div class="info">
+        <div>当前正在绘制{{ activeTool.name }}</div>
+      </div>
+      <div class="flex">
+        <div @click.stop="() => (dialog = true)" class="edit-style">
+          修改样式
+        </div>
+        <div class="exit-draw" @click.stop="clearTool">退出绘制</div>
+      </div>
     </div>
 
-    <!-- <div class="tool-info flex" v-if="activeTool.value">
-      <div class="info">当前正在绘制{{ activeTool.name }}</div>
-      <div class="exit-draw" @click.stop="clearTool">退出绘制</div>
-    </div> -->
+    <el-dialog
+      v-model="dialog"
+      @close="() => (dialog = false)"
+      :title="`${activeTool.name}的样式选择`"
+      destroy-on-close
+    >
+      <options
+        :activeTool="activeTool"
+        v-model:opts="option"
+        @close="() => (dialog = false)"
+      ></options>
+    </el-dialog>
+    <!-- <click-dialog
+      v-model:visible="descVisible"
+      :title="`${activeTool.name}的详情`"
+      :position="{
+        x: position.x,
+        y: position.y,
+      }"
+    >
+      <description-info
+        v-model:desc="description"
+        @close="() => (dialog = false)"
+      ></description-info>
+    </click-dialog> -->
   </div>
 </template>
 
 <script lang="ts" setup>
 import { toolbar } from "@/config/toolbar";
+import options from "./toolbar/options.vue";
+import { useUser } from "@/store/user";
+import { useToolSelect } from "@/service/optGeojson";
 
-const emit = defineEmits(["toolbar"]);
+const PARENT_PROVIDE = "parentProvide";
+
+const parent = inject(PARENT_PROVIDE);
+const routeId = inject("routeId");
 const expand = ref(false);
+const isFull = ref(false);
+const dialog = ref(false);
+
 const activeTool = ref({
   name: "",
   value: "",
   type: "",
   editor: "",
 });
-let editor: any = null;
+
+// const structMap = new Map();
+const option = ref({
+  strokeColor: "#FE34AA",
+  strokeOpacity: 0.5,
+  strokeWeight: 3,
+  fillColor: "#3477FE",
+  fillOpacity: 0.5,
+  strokeStyle: "solid",
+});
+const user = useUser().getUserInfo;
+// console.log(useUser().getUserInfo);
+const [clearTool, handleTool] = useToolSelect(activeTool, option, user);
 
 const collapse = () => {
   expand.value = !expand.value;
 };
 
-const handleTool = (type) => {
-  if (activeTool.value) {
-    window.mouseTool.close();
+const fullScreen = () => {
+  const el: any = parent ? parent.value.$el : null;
+  if (isFull.value) {
+    el.exitFullScreen && el.exitFullScreen();
+  } else {
+    el.requestFullscreen && el.requestFullscreen();
   }
-  activeTool.value = type;
-  if (type.type === "MouseTool") {
-    window.mouseTool[type.value]({
-      strokeColor: "red",
-      strokeOpacity: 0.5,
-      strokeWeight: 6,
-      fillColor: "blue",
-      fillOpacity: 0.5,
-      // strokeStyle还支持 solid
-      strokeStyle: "solid",
-      // strokeDasharray: [30,10],
-    });
-  }
-  window.mouseTool.on("draw", draw);
-};
-
-const clearTool = () => {
-  activeTool.value = {
-    name: "",
-    value: "",
-    type: "",
-    editor: "",
-  };
-  editor.close();
-  destroyListener();
-};
-const edit = (ev) => {
-  const Construct = window.AMap[activeTool.value.editor];
-  if (Construct) {
-    editor = new Construct(window.map, ev.target);
-    editor.open();
-  }
-};
-const draw = (e) => {
-  const struct = e.obj;
-  struct.on("rightclick", edit);
-  // console.log("覆盖物对象绘制完成", e.obj.getOptions());
-};
-
-const destroyListener = () => {
-  window.mouseTool.close();
-  window.mouseTool.off("draw", draw);
+  isFull.value = !isFull.value;
 };
 </script>
 
@@ -131,7 +147,7 @@ const destroyListener = () => {
     }
   }
   .tool-info {
-    width: 180px;
+    width: 240px;
     position: absolute;
     right: 0px;
     top: 50px;
@@ -146,6 +162,11 @@ const destroyListener = () => {
     column-gap: 8px;
     padding: 0px 10px;
     flex-wrap: nowrap;
+    .edit-style {
+      color: #aaa;
+      cursor: pointer;
+      padding-right: 10px;
+    }
     .exit-draw {
       color: rgb(238, 64, 64);
       border-left: 1px dashed #aaa;

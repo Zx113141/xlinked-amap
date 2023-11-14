@@ -1,4 +1,4 @@
-
+import IndexDBCache from "./database";
 
 export { }
 
@@ -8,6 +8,7 @@ declare global {
         AMap: any,
         map: any,
         mouseTool: any,
-        editors: any[]
+        editors: any[],
+        db: IndexDBCache
     }
 }

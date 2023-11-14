@@ -7,10 +7,16 @@
 <script setup lang="ts">
 import AMapLoader from "@amap/amap-jsapi-loader";
 import { ElLoading } from "element-plus";
-import { initPluginService, initPluginEditor } from "@/service/pluginService";
-const snap = inject("snap", "");
+import { draw } from "@/service/coverService";
+import { initPluginService, initGeoJson } from "@/service/pluginService";
+// const snap = inject("snap", "");
+const route = useRoute();
 
 onMounted(async () => {
+  // await initMap();
+});
+
+const initAMap = async (id) => {
   const loadingInstance = ElLoading.service({
     target: "#map",
   });
@@ -25,30 +31,48 @@ onMounted(async () => {
       "AMap.PolygonEditor",
       "AMap.PolylineEditor",
       "AMap.CircleEditor",
+      "AMap.GeoJSON",
     ],
   });
+  await initMap(id);
+
+  // initPluginEditor(window.map);
+  loadingInstance.close();
+};
+const initMap = async (id) => {
   window.map = new window.AMap.Map("map", {
     center: [106.648225, 26.612017],
     zoom: 14,
     viewMode: "3D",
     mapStyle: "amap://styles/dark",
+
+    pitch: 45,
   });
   initPluginService(window.map, (mouseTool) => {
     window.mouseTool = mouseTool;
   });
-  // initPluginEditor(window.map);
-  loadingInstance.close();
-});
+  initGeoJson();
+  await draw(id);
+};
 
-const getSnapshotBySnapId = (newSnap) => {
-  console.log(newSnap);
+const destroy = () => {
+  window.map.destroy && window.map.destroy();
+};
+
+const getSnapshotId = (id) => {
+  if (id) {
+    initAMap(id);
+  } else {
+    destroy();
+  }
 };
 
 watch(
-  () => snap,
-  (newSnap) => {
-    getSnapshotBySnapId(newSnap);
-  }
+  () => route.query.id,
+  (id) => {
+    getSnapshotId(id);
+  },
+  { deep: true }
 );
 </script>
 

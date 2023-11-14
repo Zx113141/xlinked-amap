@@ -7,16 +7,24 @@ export const initPluginService = (map, callback) => {
     });
 }
 
-export const initPluginEditor = (map,) => {
-    window.AMap.plugin(['AMap.RectangleEditor', 'AMap.PolygonEditor', 'AMap.PolylineEditor', 'AMap.CircleEditor',]
+// export const initPluginEditor = (map,) => {
+//     window.AMap.plugin(['AMap.RectangleEditor', 'AMap.PolygonEditor', 'AMap.PolylineEditor', 'AMap.CircleEditor',]
+//         , function (e) {
+//             //异步加载插件
+//             const rectangle = new window.AMap.RectangleEditor(map);
+//             const polygon = new window.AMap.PolygonEditor(map);
+//             const polyline = new window.AMap.PolylineEditor(map);
+//             const circle = new window.AMap.CircleEditor(map);
+//             // map.addControl(toolbar);
+//             // callback([rectangle, polygon, polyline, circle])
+//         }
+//     );
+// }
+
+export const initGeoJson = () => {
+    window.AMap.plugin(['AMap.GeoJSON',]
         , function (e) {
             //异步加载插件
-            const rectangle = new window.AMap.RectangleEditor(map);
-            const polygon = new window.AMap.PolygonEditor(map);
-            const polyline = new window.AMap.PolylineEditor(map);
-            const circle = new window.AMap.CircleEditor(map);
-            // map.addControl(toolbar);
-            // callback([rectangle, polygon, polyline, circle])
         }
     );
 }

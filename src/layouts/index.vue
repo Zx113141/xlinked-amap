@@ -7,7 +7,7 @@
           :label="tab.label"
           :name="tab.value"
         >
-          {{ tab.label }}
+          <!-- {{ tab.label }} -->
           <component :is="tabs_component[tab.value]" props="1"></component>
         </el-tab-pane>
       </el-tabs>
@@ -16,7 +16,7 @@
     <el-container>
       <editor>
         <template #snapshot>
-          <snapshot @snapshot="(shotId) => (snap = shotId.value)"> </snapshot>
+          <snapshot> </snapshot>
         </template>
         <template #toolbar>
           <toolbar> </toolbar>
@@ -31,13 +31,28 @@ import snapshot from "../components/shapshot.vue";
 import toolbar from "../components/toolbar.vue";
 import { tabs_tool } from "@/config/tabs";
 import editor from "@/components/editor.vue";
-
+const route = useRoute();
+const routeId = ref("");
 const activeName = ref("geo");
-const snap = ref("");
+const ROUTE_ID = "routeId";
+provide(ROUTE_ID, routeId);
 
-provide("snap", snap);
+const tabs_component = {
+  geo: defineAsyncComponent(() => import("../components/geo.vue")),
+  enhance: defineAsyncComponent(() => import("../components/data-analyze.vue")),
+};
 
-const tabs_component = {};
+watch(
+  () => route.query.id,
+  (id) => {
+    if (id) {
+      routeId.value = id as string;
+    }
+  },
+  {
+    immediate: true,
+  }
+);
 </script>
 
 <style lang="scss" scoped>
