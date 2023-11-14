@@ -45,6 +45,8 @@ const initMap = async (id) => {
     zoom: 14,
     viewMode: "3D",
     mapStyle: "amap://styles/dark",
+
+    pitch: 45,
   });
   initPluginService(window.map, (mouseTool) => {
     window.mouseTool = mouseTool;

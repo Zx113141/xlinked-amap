@@ -39,6 +39,7 @@ provide(ROUTE_ID, routeId);
 
 const tabs_component = {
   geo: defineAsyncComponent(() => import("../components/geo.vue")),
+  enhance: defineAsyncComponent(() => import("../components/data-analyze.vue")),
 };
 
 watch(
